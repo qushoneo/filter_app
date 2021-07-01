@@ -1,23 +1,18 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
+import UserCard from "./users/UserCard";
+import styled from "styled-components";
+import UserList from "./users/UserList";
+const Users = styled.div`
+  padding-top: 2%;
+`;
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="App row">
+      <Users className="row offset-2 col-8">
+        <UserList/>
+      </Users>
     </div>
   );
 }
