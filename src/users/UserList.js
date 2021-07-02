@@ -1,25 +1,46 @@
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import UserCard from "./UserCard";
-import users from "./users";
+import Clients from "./users";
+import { addClientAction, sortState } from "../toolkitStore/toolkitSlice";
 
 const FisrtLetter = styled.div`
-position:relative;
-right:50px;
-bottom: 20px;
-font-size:30px;
-color:Red;
-`
-
+  position: relative;
+  right: 50px;
+  bottom: 20px;
+  font-size: 30px;
+  color: Red;
+`;
 const List = styled.div`
-display:flex;
-flex-wrap:wrap;
-`
+  display: flex;
+  flex-wrap: wrap;
+`;
 
 const Group = styled.div`
-border-top:3px solid black;
-`
-
+  border-top: 3px solid black;
+`;
+let count = 0;
 const UserList = () => {
+  const dispatch = useDispatch();
+  const AddUser = (name, surname) => {
+    const myUser = {
+      name,
+      surname,
+      id: count++,
+    };
+    dispatch(addClientAction(myUser));
+  };
+  useEffect(() => {
+    Clients.forEach((client) => {
+      AddUser(client.name, client.surname);
+    });
+  }, []);
+
+  let users = useSelector(state => state.toolkit.users);
+  dispatch(sortState())
+
+  
   let output = [];
   let userGroup = [];
   const group = (arr, property) => {
@@ -32,25 +53,32 @@ const UserList = () => {
       result[key].push(obj);
     }
     return result;
-  }
+  };
 
-  users.sort((a,b) => {
-    return a.surname < b.surname ? -1 : 1;
-   })
-
+  let konets = [];
   userGroup = group(users, "surname");
-
   for (const key in userGroup) {
     let arr = [];
     let el = userGroup[key];
-    el.forEach((chel) =>{
-      arr.push(<UserCard name={chel.name} surname={chel.surname}></UserCard>)
-    })
-    output.push(<Group className="col-12"><FisrtLetter>{key}</FisrtLetter><List className="col-12">{arr}</List></Group>)   
+
+    el.forEach((chel) => {
+      arr.push(
+        <UserCard
+          name={chel.name}
+          surname={chel.surname}
+          id={chel.id}
+        ></UserCard>
+      );
+    });
+    output.push(
+      <Group className="col-12">
+        <FisrtLetter>{key}</FisrtLetter>
+        <List className="col-12">{arr}</List>
+      </Group>
+    );
   }
+  users.length == 0 ? konets.push(<h1>Not found</h1>) : konets.push(output);
 
-
-
-  return output;
+  return konets;
 };
 export default UserList;

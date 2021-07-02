@@ -1,11 +1,13 @@
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import { VscChromeClose } from "react-icons/vsc";
+import { deleteUserAction } from "../toolkitStore/toolkitSlice";
 
 const CardBody = styled.div`
-  margin:0px 30px 30px 0px;
-  padding: 0px;
-  height: 100px;
+  margin: 0px 30px 30px 0px;
+  padding:15px 0px 15px 0px;
   background-color: lightblue;
-  border:1px dotted cyan;
+  border: 3px dotted cyan;
 `;
 
 const getInitials = (name, lastname) => {
@@ -23,8 +25,8 @@ const Ring = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 55%;
-  width: 70%;
+  height: 75%;
+  width: 75%;
   border-radius: 50% 50% 50% 50%;
   background-color: blue;
 `;
@@ -36,17 +38,23 @@ const Info = styled.div`
 `;
 
 const UserInfo = styled.div`
-  background-color: lightblue;
   font-size: 30px;
   display: flex;
   align-items: center;
 `;
 
-const IconX = styled.div`
-  text-align: right;
+const IconX = styled(VscChromeClose)`
 `;
-
-const UserCard = ({ name, surname }) => {
+const UserCard = ({ name, surname, id }) => {
+  const dispatch = useDispatch();
+  const DeleteUser = (id) => {
+    const User = {
+      name,
+      surname,
+      id
+    }
+    dispatch(deleteUserAction({User}));
+  };
   return (
     <CardBody className="row col-4">
       <Initials className="col-3">
@@ -57,9 +65,9 @@ const UserCard = ({ name, surname }) => {
       <UserInfo className="col-8">
         <p>{`${name} ${surname}`}</p>
       </UserInfo>
-      <IconX className="col-1">
-        X
-      </IconX>
+      <div className="col-1">
+        <IconX onClick={() => DeleteUser(id)} />
+      </div>
     </CardBody>
   );
 };
