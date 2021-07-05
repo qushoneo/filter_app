@@ -1,9 +1,19 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import UserCard from "./UserCard";
-import Clients from "./users";
-import { addClientAction, sortState } from "../toolkitStore/toolkitSlice";
+import {
+  addClientAction,
+  clearState,
+  deleteUserAction,
+  getState,
+  sortState,
+} from "../toolkitStore/toolkitSlice";
+import axios from "axios";
+import { Button } from "react-bootstrap";
+
+const URL = "https://swapi.dev/api/people/?page=";
+let i = 0;
 
 const FisrtLetter = styled.div`
   position: relative;
@@ -17,50 +27,66 @@ const List = styled.div`
   flex-wrap: wrap;
 `;
 
+const PrevNextBtn = styled.div`
+display: flex;
+justify-content: space-evenly;
+align-items: center;
+`
+
 const Group = styled.div`
   border-top: 3px solid black;
 `;
-let count = 0;
+
+const group = (arr, property) => {
+  let result = {};
+  for (const obj of arr) {
+    let key = obj[property].substr(0, 1);
+    if (!result[key]) {
+      result[key] = [];
+    }
+    result[key].push(obj);
+  }
+  return result;
+};
+
+
+
+
 const UserList = () => {
-  const dispatch = useDispatch();
-  const AddUser = (name, surname) => {
-    const myUser = {
-      name,
-      surname,
-      id: count++,
-    };
-    dispatch(addClientAction(myUser));
-  };
-  useEffect(() => {
-    Clients.forEach((client) => {
-      AddUser(client.name, client.surname);
-    });
-  }, []);
-
-  let users = useSelector(state => state.toolkit.users);
-  dispatch(sortState())
-
-  
+  const [Page, setPage] = useState(1);
   let output = [];
   let userGroup = [];
-  const group = (arr, property) => {
-    let result = {};
-    for (const obj of arr) {
-      let key = obj[property].substr(0, 1);
-      if (!result[key]) {
-        result[key] = [];
-      }
-      result[key].push(obj);
-    }
-    return result;
+
+  output.push(
+    <PrevNextBtn className="col-6">
+      <p>Страница {Page}</p>
+      <div>
+      <Button onClick={() => setPage(Page-1)}> {"<"} </Button>
+      <Button onClick={() => setPage(Page+1)}> {">"} </Button>
+      </div>
+    </PrevNextBtn>
+  );
+
+  const dispatch = useDispatch();
+
+  const AddUser = (User) => {
+    User.id = i++;
+    dispatch(addClientAction(User));
   };
 
-  let konets = [];
-  userGroup = group(users, "surname");
+  useEffect(() => {
+    dispatch(clearState())
+    axios.get(`${URL+Page}`).then((response) => {
+      response.data.results.forEach((user) => AddUser(user));
+    });
+  }, [Page]);
+  let UserData = useSelector((state) => state.toolkit.users);
+  dispatch(sortState());
+
+  userGroup = group(UserData, "name");
   for (const key in userGroup) {
     let arr = [];
     let el = userGroup[key];
-
     el.forEach((chel) => {
       arr.push(
         <UserCard
@@ -77,8 +103,7 @@ const UserList = () => {
       </Group>
     );
   }
-  users.length == 0 ? konets.push(<h1>Not found</h1>) : konets.push(output);
 
-  return konets;
+  return output;
 };
 export default UserList;
